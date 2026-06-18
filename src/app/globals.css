@@ -316,13 +316,14 @@ html, body {
 /* Input area */
 .chat-input-area {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   padding: 8px 12px;
   background: var(--bg-glass);
   backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   z-index: 10;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .chat-input {
@@ -346,6 +347,11 @@ html, body {
 
 .chat-input::placeholder {
   color: var(--text-muted);
+}
+
+.chat-input:read-only {
+  border-color: rgba(225, 112, 85, 0.4);
+  background: rgba(225, 112, 85, 0.05);
 }
 
 .chat-send-btn {
@@ -372,6 +378,394 @@ html, body {
 .chat-send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ─── Action Buttons (Mic & Attach) ─── */
+.chat-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.chat-action-btn:hover:not(:disabled) {
+  border-color: var(--border-active);
+  background: var(--bg-card-hover);
+  transform: scale(1.05);
+}
+
+.chat-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Mic button recording state */
+.mic-btn.recording {
+  background: rgba(225, 112, 85, 0.15);
+  border-color: var(--danger);
+  color: var(--danger);
+  animation: recordPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes recordPulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(225, 112, 85, 0.4); 
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 0 8px rgba(225, 112, 85, 0); 
+    transform: scale(1.05);
+  }
+}
+
+/* Attach button */
+.attach-btn {
+  font-size: 17px;
+}
+
+/* Hidden file input */
+.file-input-hidden {
+  display: none;
+}
+
+/* ─── Recording Indicator ─── */
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(225, 112, 85, 0.08);
+  border-top: 1px solid rgba(225, 112, 85, 0.2);
+  font-size: 12px;
+  color: var(--danger);
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-out;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: recordDotPulse 1s ease-in-out infinite;
+}
+
+@keyframes recordDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* ─── Attachment Preview ─── */
+.attachment-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.attachment-image-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.attachment-image-preview img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.attachment-pdf-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.attachment-pdf-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.attachment-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachment-remove {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(225, 112, 85, 0.1);
+  border: 1px solid rgba(225, 112, 85, 0.2);
+  color: var(--danger);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+  padding: 0;
+  line-height: 1;
+}
+
+.attachment-remove:hover {
+  background: rgba(225, 112, 85, 0.2);
+  transform: scale(1.1);
+}
+
+/* ─── Audio Preference Prompt ─── */
+.audio-preference-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  margin: 4px 0;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.08), rgba(0, 210, 255, 0.05));
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  animation: messageIn 0.3s ease-out;
+  text-align: center;
+}
+
+.audio-prompt-icon {
+  font-size: 28px;
+}
+
+.audio-prompt-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.audio-prompt-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.audio-prompt-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.audio-prompt-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.audio-prompt-btn-audio {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+}
+
+.audio-prompt-btn-audio:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(108, 92, 231, 0.3);
+}
+
+.audio-prompt-btn-text {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.audio-prompt-btn-text:hover {
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+
+/* ─── Audio Preference Toggle (Header) ─── */
+.audio-pref-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.audio-pref-toggle:hover {
+  border-color: var(--border-active);
+  transform: scale(1.05);
+}
+
+.audio-pref-toggle.active {
+  background: rgba(108, 92, 231, 0.15);
+  border-color: var(--primary);
+}
+
+/* ─── TTS Button on Messages ─── */
+.message-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.tts-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transition: var(--transition);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.tts-btn:hover {
+  opacity: 1;
+  background: rgba(108, 92, 231, 0.1);
+  border-color: var(--border);
+}
+
+.tts-btn.speaking {
+  opacity: 1;
+  color: var(--primary-light);
+  background: rgba(108, 92, 231, 0.15);
+  border-color: var(--primary);
+  animation: speakPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes speakPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(108, 92, 231, 0); }
+}
+
+/* ─── Message Image ─── */
+.message-image-container {
+  margin-bottom: 6px;
+  max-width: 240px;
+}
+
+.message-image {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.message-image:hover {
+  border-color: var(--border-active);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Message File Badge ─── */
+.message-file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(108, 92, 231, 0.08);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.file-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* ─── Voice Message Badge ─── */
+.message-voice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgba(0, 210, 255, 0.08);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+/* ─── Welcome Features ─── */
+.welcome-features {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.welcome-features span {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
 }
 
 /* Welcome message */
