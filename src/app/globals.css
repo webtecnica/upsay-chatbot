@@ -45,10 +45,6 @@
   box-sizing: border-box;
 }
 
-:root {
-  --app-height: 100vh; /* JS will override this with actual window.innerHeight */
-}
-
 html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
@@ -56,7 +52,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
-  height: var(--app-height);
+  height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
   overscroll-behavior: none;
@@ -70,7 +67,7 @@ html, body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: var(--app-height);
+  height: 100%;
   background: var(--bg-primary);
   overflow: hidden;
   position: relative;

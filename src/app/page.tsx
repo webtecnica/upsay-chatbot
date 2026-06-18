@@ -44,35 +44,12 @@ export default function ChatPage() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [incidentAlertShown, setIncidentAlertShown] = useState(false);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setSessionId(crypto.randomUUID());
-
-    // Set real viewport height for iframe compatibility
-    const setAppHeight = () => {
-      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-    };
-    setAppHeight();
-    window.addEventListener('resize', setAppHeight);
-
-    // Prevent the iframe document from scrolling (keeps header visible)
-    const preventScroll = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-    window.addEventListener('scroll', preventScroll, { passive: false });
-    // Also prevent on focus events that trigger auto-scroll
-    document.addEventListener('focusin', () => {
-      setTimeout(preventScroll, 0);
-    });
-
-    return () => {
-      window.removeEventListener('resize', setAppHeight);
-      window.removeEventListener('scroll', preventScroll);
-    };
   }, []);
 
   // Fetch active incidents on load
@@ -90,7 +67,15 @@ export default function ChatPage() {
   }, []);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatMessagesRef.current) {
+      const container = chatMessagesRef.current;
+      requestAnimationFrame(() => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth',
+        });
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -150,7 +135,7 @@ export default function ChatPage() {
       }]);
     } finally {
       setIsLoading(false);
-      inputRef.current?.focus();
+      inputRef.current?.focus({ preventScroll: true });
     }
   };
 
@@ -199,7 +184,7 @@ export default function ChatPage() {
       )}
 
       {/* Messages */}
-      <div className="chat-messages">
+      <div className="chat-messages" ref={chatMessagesRef}>
         {messages.length === 0 && (
           <div className="welcome-container">
             <div className="welcome-icon">💬</div>
