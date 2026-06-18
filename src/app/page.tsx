@@ -51,13 +51,28 @@ export default function ChatPage() {
     setSessionId(crypto.randomUUID());
 
     // Set real viewport height for iframe compatibility
-    // window.innerHeight returns the actual iframe content area height
     const setAppHeight = () => {
       document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
     };
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
-    return () => window.removeEventListener('resize', setAppHeight);
+
+    // Prevent the iframe document from scrolling (keeps header visible)
+    const preventScroll = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    window.addEventListener('scroll', preventScroll, { passive: false });
+    // Also prevent on focus events that trigger auto-scroll
+    document.addEventListener('focusin', () => {
+      setTimeout(preventScroll, 0);
+    });
+
+    return () => {
+      window.removeEventListener('resize', setAppHeight);
+      window.removeEventListener('scroll', preventScroll);
+    };
   }, []);
 
   // Fetch active incidents on load
