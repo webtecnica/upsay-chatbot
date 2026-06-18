@@ -373,12 +373,17 @@ export default function ChatPage() {
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        return;
+      }
       isManuallyStoppedRef.current = true;
       setIsRecording(false);
       if (event.error === 'not-allowed') {
         setToast({ type: 'error', message: 'Permissão do microfone negada. Verifique as configurações do navegador.' });
+      } else if (event.error === 'service-not-allowed') {
+        setToast({ type: 'error', message: 'Serviço de reconhecimento de voz não permitido por este navegador.' });
       } else {
-        setToast({ type: 'error', message: 'Erro no reconhecimento de voz. Tente novamente.' });
+        setToast({ type: 'error', message: `Reconhecimento de voz interrompido (${event.error}). Tente novamente.` });
       }
     };
 
