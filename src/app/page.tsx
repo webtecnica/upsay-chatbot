@@ -9,6 +9,14 @@ interface Message {
   time: string;
 }
 
+interface Incident {
+  id: string;
+  title: string;
+  description: string;
+  expires_at: string;
+  created_at: string;
+}
+
 const SUGGESTIONS = [
   '📋 Como funciona o sistema de tickets?',
   '🔄 Como ativar o rodízio de atendentes?',
@@ -18,17 +26,43 @@ const SUGGESTIONS = [
   '⚙️ Como configurar filas?',
 ];
 
+function formatIncidentDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [incidentAlertShown, setIncidentAlertShown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setSessionId(crypto.randomUUID());
+  }, []);
+
+  // Fetch active incidents on load
+  useEffect(() => {
+    async function fetchIncidents() {
+      try {
+        const res = await fetch('/api/chat/incidents');
+        const data = await res.json();
+        setIncidents(data.incidents || []);
+      } catch {
+        // Silently fail - incidents are not critical
+      }
+    }
+    fetchIncidents();
   }, []);
 
   const scrollToBottom = useCallback(() => {
@@ -63,10 +97,22 @@ export default function ChatPage() {
 
       const data = await res.json();
 
+      let answerContent = data.answer || 'Desculpe, ocorreu um erro. Tente novamente.';
+
+      // Inject incident alert after first response (greeting) if there are active incidents
+      if (!incidentAlertShown && incidents.length > 0 && messages.length === 0) {
+        const incidentTexts = incidents.map(inc =>
+          `⚠️ **${inc.title}**: ${inc.description} (Previsão de solução: ${formatIncidentDate(inc.expires_at)})`
+        ).join('\n');
+
+        answerContent += `\n\n---\n🚧 **Aviso de Incidente${incidents.length > 1 ? 's' : ''}:**\n${incidentTexts}`;
+        setIncidentAlertShown(true);
+      }
+
       const assistantMsg: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: data.answer || 'Desculpe, ocorreu um erro. Tente novamente.',
+        content: answerContent,
         time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       };
 
@@ -109,6 +155,24 @@ export default function ChatPage() {
           <p>Online • Assistente UpSay</p>
         </div>
       </div>
+
+      {/* Incident Alert Banner */}
+      {incidents.length > 0 && (
+        <div className="incident-alert-banner" id="incident-alert-banner">
+          <div className="incident-alert-header">
+            ⚠️ {incidents.length === 1 ? 'Incidente Ativo' : `${incidents.length} Incidentes Ativos`}
+          </div>
+          {incidents.map(incident => (
+            <div key={incident.id} className="incident-alert-item">
+              <div className="incident-alert-title">{incident.title}</div>
+              <div className="incident-alert-desc">{incident.description}</div>
+              <div className="incident-alert-time">
+                🕐 Previsão de solução: {formatIncidentDate(incident.expires_at)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Messages */}
       <div className="chat-messages">
