@@ -283,7 +283,7 @@ export default function ChatPage() {
 
       const data = await res.json();
 
-      let answerContent = data.answer || 'Desculpe, ocorreu um erro. Tente novamente.';
+      let answerContent = data.answer || data.error || 'Desculpe, ocorreu um erro. Tente novamente.';
 
       // Inject incident alert after first response
       if (!incidentAlertShown && incidents.length > 0 && messages.length === 0) {

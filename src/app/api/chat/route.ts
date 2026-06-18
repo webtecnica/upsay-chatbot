@@ -71,11 +71,23 @@ export async function POST(req: NextRequest) {
     let tokensUsed = 0;
 
     if (hasImage) {
+      if (!process.env.OPENROUTER_API_KEY) {
+        return NextResponse.json(
+          { error: 'Configuração pendente: a chave OPENROUTER_API_KEY não foi configurada nas variáveis de ambiente na nuvem (Vercel).' },
+          { status: 500 }
+        );
+      }
       // ===== IMAGE ANALYSIS via OpenRouter Vision =====
       const systemPrompt = SYSTEM_PROMPT + IMAGE_ANALYSIS_INSTRUCTION;
       answer = await callOpenRouterVision(systemPrompt, message, imageDataUrl);
 
     } else if (hasPdf) {
+      if (!process.env.OPENROUTER_API_KEY) {
+        return NextResponse.json(
+          { error: 'Configuração pendente: a chave OPENROUTER_API_KEY não foi configurada nas variáveis de ambiente na nuvem (Vercel).' },
+          { status: 500 }
+        );
+      }
       // ===== PDF ANALYSIS via OpenRouter Text =====
       let pdfText = '';
       try {
