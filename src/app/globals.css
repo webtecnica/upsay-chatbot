@@ -1530,3 +1530,93 @@ html, body {
   color: var(--text-muted);
   margin-top: 2px;
 }
+
+/* ============================================
+   QUICK TIPS FOOTER LAYOUT (ELEVATES INPUT)
+   ============================================ */
+
+.quick-tips-footer {
+  padding: 10px 16px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.quick-tips-footer h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0;
+}
+
+.quick-tips-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+
+.quick-tips-row::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.quick-tip-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  width: 190px;
+  text-align: left;
+}
+
+.quick-tip-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-active);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-tip-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.quick-tip-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.quick-tip-info h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-tip-info p {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

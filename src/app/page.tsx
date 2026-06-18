@@ -256,6 +256,41 @@ export default function ChatPage() {
           ➤
         </button>
       </div>
+
+      {/* Quick Tips Footer */}
+      <div className="quick-tips-footer">
+        <h3>💡 Dicas Rápidas</h3>
+        <div className="quick-tips-row">
+          <div className="quick-tip-card" onClick={() => sendMessage("Como conectar o WhatsApp na plataforma UpSay?")}>
+            <span className="quick-tip-icon">📱</span>
+            <div className="quick-tip-info">
+              <h4>Conectar WhatsApp</h4>
+              <p>Passo a passo simples</p>
+            </div>
+          </div>
+          <div className="quick-tip-card" onClick={() => sendMessage("Como funciona o rodízio de atendentes?")}>
+            <span className="quick-tip-icon">🔄</span>
+            <div className="quick-tip-info">
+              <h4>Rodízio de Equipes</h4>
+              <p>Distribuição de contatos</p>
+            </div>
+          </div>
+          <div className="quick-tip-card" onClick={() => sendMessage("Como configurar o FlowBuilder?")}>
+            <span className="quick-tip-icon">🤖</span>
+            <div className="quick-tip-info">
+              <h4>FlowBuilder</h4>
+              <p>Automatização de fluxos</p>
+            </div>
+          </div>
+          <div className="quick-tip-card" onClick={() => sendMessage("Como cadastrar um novo atendente ou operador?")}>
+            <span className="quick-tip-icon">👥</span>
+            <div className="quick-tip-info">
+              <h4>Cadastrar Operador</h4>
+              <p>Adicionar atendentes</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
