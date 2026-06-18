@@ -143,6 +143,7 @@ export default function ChatPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
   const wasVoiceInputRef = useRef(false);
+  const isManuallyStoppedRef = useRef(false);
 
   /* ─── Init ─── */
   useEffect(() => {
@@ -230,88 +231,6 @@ export default function ChatPage() {
 
     window.speechSynthesis.speak(utterance);
   }, [speakingMsgId]);
-
-  /* ─── STT: Toggle recording ─── */
-  const toggleRecording = useCallback(() => {
-    if (isRecording) {
-      recognitionRef.current?.stop();
-      setIsRecording(false);
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SpeechRecognitionClass = (window as any).SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognitionClass) {
-      setToast({ type: 'error', message: 'Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.' });
-      return;
-    }
-
-    const recognition = new SpeechRecognitionClass();
-    recognition.lang = 'pt-BR';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      setInput(transcript);
-      wasVoiceInputRef.current = true;
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognition.onerror = () => {
-      setIsRecording(false);
-      setToast({ type: 'error', message: 'Erro no reconhecimento de voz. Verifique as permissões do microfone.' });
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
-    wasVoiceInputRef.current = true;
-  }, [isRecording]);
-
-  /* ─── File attachment handler ─── */
-  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = ''; // Reset for re-selection
-
-    if (file.type === 'application/pdf') {
-      if (file.size > MAX_PDF_SIZE) {
-        setToast({ type: 'error', message: `PDF muito grande (${formatFileSize(file.size)}). Máximo: 20MB.` });
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        setAttachedFile({ type: 'pdf', name: file.name, dataUrl: base64 });
-      };
-      reader.readAsDataURL(file);
-    } else if (ACCEPTED_IMAGE_TYPES.includes(file.type) || file.type.startsWith('image/')) {
-      if (file.size > MAX_IMAGE_SIZE) {
-        setToast({ type: 'error', message: `Imagem muito grande (${formatFileSize(file.size)}). Máximo: 10MB.` });
-        return;
-      }
-      try {
-        const compressed = await compressImage(file);
-        setAttachedFile({ type: 'image', name: file.name, dataUrl: compressed });
-      } catch {
-        setToast({ type: 'error', message: 'Erro ao processar a imagem.' });
-      }
-    } else {
-      setToast({ type: 'error', message: 'Formato não suportado. Envie imagens (PNG, JPG, WEBP, GIF, BMP...) ou PDFs.' });
-    }
-  }, []);
-
-  const removeAttachment = useCallback(() => {
-    setAttachedFile(null);
-  }, []);
 
   /* ─── Send message ─── */
   const sendMessage = async (text: string) => {
@@ -404,6 +323,109 @@ export default function ChatPage() {
       inputRef.current?.focus({ preventScroll: true });
     }
   };
+
+  /* ─── STT: Toggle recording ─── */
+  const toggleRecording = useCallback(() => {
+    if (isRecording) {
+      isManuallyStoppedRef.current = true;
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      if (input.trim()) {
+        sendMessage(input);
+      }
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognitionClass = (window as any).SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionClass) {
+      setToast({ type: 'error', message: 'Seu navegador não suporta reconhecimento de voz. Use Chrome ou Edge.' });
+      return;
+    }
+
+    isManuallyStoppedRef.current = false;
+    const recognition = new SpeechRecognitionClass();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
+      wasVoiceInputRef.current = true;
+    };
+
+    recognition.onend = () => {
+      if (!isManuallyStoppedRef.current) {
+        try {
+          recognition.start();
+        } catch {
+          setIsRecording(false);
+        }
+      } else {
+        setIsRecording(false);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      isManuallyStoppedRef.current = true;
+      setIsRecording(false);
+      if (event.error === 'not-allowed') {
+        setToast({ type: 'error', message: 'Permissão do microfone negada. Verifique as configurações do navegador.' });
+      } else {
+        setToast({ type: 'error', message: 'Erro no reconhecimento de voz. Tente novamente.' });
+      }
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+    wasVoiceInputRef.current = true;
+  }, [isRecording, input, sendMessage]);
+
+  /* ─── File attachment handler ─── */
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = ''; // Reset for re-selection
+
+    if (file.type === 'application/pdf') {
+      if (file.size > MAX_PDF_SIZE) {
+        setToast({ type: 'error', message: `PDF muito grande (${formatFileSize(file.size)}). Máximo: 20MB.` });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        setAttachedFile({ type: 'pdf', name: file.name, dataUrl: base64 });
+      };
+      reader.readAsDataURL(file);
+    } else if (ACCEPTED_IMAGE_TYPES.includes(file.type) || file.type.startsWith('image/')) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        setToast({ type: 'error', message: `Imagem muito grande (${formatFileSize(file.size)}). Máximo: 10MB.` });
+        return;
+      }
+      try {
+        const compressed = await compressImage(file);
+        setAttachedFile({ type: 'image', name: file.name, dataUrl: compressed });
+      } catch {
+        setToast({ type: 'error', message: 'Erro ao processar a imagem.' });
+      }
+    } else {
+      setToast({ type: 'error', message: 'Formato não suportado. Envie imagens (PNG, JPG, WEBP, GIF, BMP...) ou PDFs.' });
+    }
+  }, []);
+
+  const removeAttachment = useCallback(() => {
+    setAttachedFile(null);
+  }, []);
+
+
 
   /* ─── Audio preference handlers ─── */
   const handleAudioPreference = (pref: 'audio' | 'text') => {
