@@ -49,6 +49,15 @@ export default function ChatPage() {
 
   useEffect(() => {
     setSessionId(crypto.randomUUID());
+
+    // Set real viewport height for iframe compatibility
+    // window.innerHeight returns the actual iframe content area height
+    const setAppHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    return () => window.removeEventListener('resize', setAppHeight);
   }, []);
 
   // Fetch active incidents on load

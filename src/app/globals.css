@@ -45,47 +45,20 @@
   box-sizing: border-box;
 }
 
-html {
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
+:root {
+  --app-height: 100vh; /* JS will override this with actual window.innerHeight */
 }
 
-body {
+html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
-  height: 100%;
-  width: 100%;
+  height: var(--app-height);
   margin: 0;
   padding: 0;
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Prevent scroll chaining and touch dragging */
-  overscroll-behavior: none;
-  touch-action: none;
-}
-
-/* Ensure Next.js root wrapper fills the full height */
-#__next,
-[data-nextjs-scroll-focus-boundary] {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
 }
 
 /* ============================================
@@ -96,17 +69,10 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 900px;
-  height: 100%;
-  max-height: 500px;
+  height: var(--app-height);
   background: var(--bg-primary);
   overflow: hidden;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   position: relative;
-  /* Restore touch-action for the chat itself */
-  touch-action: auto;
 }
 
 .chat-container::before {
