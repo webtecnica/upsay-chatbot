@@ -237,7 +237,6 @@ export default function ChatPage() {
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isLoading}
-          autoFocus
         />
         <button
           className="chat-send-btn"
