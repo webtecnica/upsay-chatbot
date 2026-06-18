@@ -45,7 +45,16 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -53,11 +62,18 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Prevent scroll chaining and touch dragging */
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 /* Ensure Next.js root wrapper fills the full height */
@@ -69,6 +85,7 @@ html, body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 /* ============================================
@@ -88,6 +105,8 @@ html, body {
   border: 1px solid var(--border);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   position: relative;
+  /* Restore touch-action for the chat itself */
+  touch-action: auto;
 }
 
 .chat-container::before {
